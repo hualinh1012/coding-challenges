@@ -1,5 +1,7 @@
 package io.elsanow.challenge.quiz.controller;
 
+import io.elsanow.challenge.quiz.dto.request.SignInDto;
+import io.elsanow.challenge.quiz.dto.response.QuizDto;
 import io.elsanow.challenge.quiz.service.IQuizService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,8 +17,8 @@ public class QuizController {
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<?> signIn(@RequestParam("userName") String userMame, @RequestParam("quizId") String quizId) {
-        return ResponseEntity.ok("");
+    public ResponseEntity<QuizDto> signIn(@RequestBody SignInDto signInDto) {
+        return ResponseEntity.ok(quizService.signIn(signInDto));
     }
 
     @PostMapping("/{quizId}/start")

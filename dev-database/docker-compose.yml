@@ -18,8 +18,6 @@ services:
     image: redis:7.0
     container_name: quiz-redis
     command: ["redis-server", "--requirepass", "password"]
-    environment:
-      REDIS_PASSWORD: redispassword
     ports:
       - "6379:6379"
     volumes:

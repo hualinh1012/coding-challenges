@@ -1,49 +1,40 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { signIn, SignInRequest } from '../../services/signInService';
 import './index.css';
 
-const SignInPage = () => {
-    const [username, setUsername] = useState('');
-    const [quizSessionId, setQuizSessionId] = useState('');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
+const SignInPage: React.FC = () => {
+    const [userName, setUserName] = useState<string>('');
+    const [quizId, setQuizId] = useState<string>('');
+    const [error, setError] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
+    const navigate = useNavigate();
 
-    const onSignIn = async (data) => {
+    const onSignIn = async (data: SignInRequest) => {
         try {
             setLoading(true);
-            const response = await fetch('https://your-api-url.com/signin', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            });
-
-            if (!response.ok) {
-                throw new Error('Sign In failed!');
-            }
-
-            const result = await response.json();
+            const result = await signIn({ userName, quizId });
             console.log('Sign In Successful:', result);
-        } catch (error) {
+            navigate('/lobby');
+        } catch (error: any) {
             setError(error.message);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleSignIn = (e) => {
+    const handleSignIn = (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!username || !quizSessionId) {
+        if (!userName || !quizId) {
             setError('Both fields are required');
             return;
         }
 
         setError('');
 
-        onSignIn({ username, quizSessionId });
+        onSignIn({ userName, quizId });
     };
-
 
     return (
         <div className="container">
@@ -53,8 +44,8 @@ const SignInPage = () => {
                     <label>Username</label>
                     <input
                         type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        value={userName}
+                        onChange={(e) => setUserName(e.target.value)}
                         className="input"
                         placeholder="Enter your username"
                     />
@@ -63,8 +54,8 @@ const SignInPage = () => {
                     <label>Quiz Session ID</label>
                     <input
                         type="text"
-                        value={quizSessionId}
-                        onChange={(e) => setQuizSessionId(e.target.value)}
+                        value={quizId}
+                        onChange={(e) => setQuizId(e.target.value)}
                         className="input"
                         placeholder="Enter quiz session ID"
                     />

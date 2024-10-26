@@ -1,5 +1,5 @@
-INSERT INTO quizzes (id, title, description, created_at)
-VALUES (1, 'Quiz', 'Default quiz for random quiz session', NOW());
+INSERT INTO quizzes (id, reference_id, title, description, created_at)
+VALUES (1, "DEFAULT", 'Quiz', 'Default quiz for random quiz session', NOW());
 
 INSERT INTO questions (id, quiz_id, question_text, question_type, created_at)
 VALUES (1, 1, 'What is the capital of France?', 'multiple_choice', NOW()),

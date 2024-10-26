@@ -19,6 +19,9 @@ public class Quiz {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "reference_id")
+    private String referenceId;
+
     @Column(name = "title")
     private String title;
 

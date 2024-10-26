@@ -7,11 +7,14 @@
 
 CREATE TABLE quizzes
 (
-    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
-    title       VARCHAR(100) NOT NULL,
-    description TEXT,
-    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id           BIGINT AUTO_INCREMENT PRIMARY KEY,
+    reference_id VARCHAR(100) NOT NULL,
+    title        VARCHAR(100) NOT NULL,
+    description  TEXT,
+    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX idx_reference_id ON quizzes(reference_id);
 
 CREATE TABLE questions
 (
