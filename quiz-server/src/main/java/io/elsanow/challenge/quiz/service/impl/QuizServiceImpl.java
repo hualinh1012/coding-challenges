@@ -7,6 +7,7 @@ import io.elsanow.challenge.quiz.dto.request.SignInDto;
 import io.elsanow.challenge.quiz.dto.response.QuizDto;
 import io.elsanow.challenge.quiz.repository.QuizRepository;
 import io.elsanow.challenge.quiz.service.IQuizService;
+import io.elsanow.challenge.quiz.service.IKafkaService;
 import io.elsanow.challenge.quiz.service.IRedisService;
 import org.springframework.stereotype.Service;
 
@@ -23,10 +24,12 @@ public class QuizServiceImpl implements IQuizService {
 
     private final QuizRepository quizRepository;
     private final IRedisService redisService;
+    private final IKafkaService kafkaService;
 
-    public QuizServiceImpl(QuizRepository quizRepository, IRedisService redisService) {
+    public QuizServiceImpl(QuizRepository quizRepository, IRedisService redisService, IKafkaService kafkaService) {
         this.quizRepository = quizRepository;
         this.redisService = redisService;
+        this.kafkaService = kafkaService;
     }
 
     @Override
@@ -62,6 +65,7 @@ public class QuizServiceImpl implements IQuizService {
 
     @Override
     public QuizDto getQuiz(String quizId) {
+        kafkaService.sendMessage("quizId");
         Quiz quiz = quizRepository.findByReferenceId(quizId);
         if (quiz == null) {
             quiz = quizRepository.findByReferenceId(DEFAULT_QUIZ_ID);

@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: quiz-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: quiz
+      MYSQL_USER: mysql
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  redis:
+    image: redis:7.0
+    container_name: quiz-redis
+    command: ["redis-server", "--requirepass", "password"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    container_name: quiz-zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+      - kafka-net
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    container_name: quiz-kafka
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092,OUTSIDE://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9092,OUTSIDE://0.0.0.0:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CREATE_TOPICS: "quiz-topic:1:1"
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    depends_on:
+      - zookeeper
+    networks:
+      - kafka-net
+
+volumes:
+  mysql_data:
+  redis_data:
+  kafka_data:
+
+networks:
+  kafka-net:
+    driver: bridge
