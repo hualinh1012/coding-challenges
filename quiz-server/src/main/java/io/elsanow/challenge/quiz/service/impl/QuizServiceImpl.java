@@ -3,6 +3,8 @@ package io.elsanow.challenge.quiz.service.impl;
 import io.elsanow.challenge.exception.UserException;
 import io.elsanow.challenge.quiz.domain.entity.Quiz;
 import io.elsanow.challenge.quiz.domain.enumeration.QuizStatus;
+import io.elsanow.challenge.quiz.dto.event.RealtimeEventDto;
+import io.elsanow.challenge.quiz.dto.event.payload.QuizParticipantDto;
 import io.elsanow.challenge.quiz.dto.request.SignInDto;
 import io.elsanow.challenge.quiz.dto.response.QuizDto;
 import io.elsanow.challenge.quiz.repository.QuizRepository;
@@ -35,7 +37,7 @@ public class QuizServiceImpl implements IQuizService {
     @Override
     public QuizDto signIn(SignInDto signInDto) {
         if (signInDto.getQuizId() == null || signInDto.getQuizId().isEmpty()
-        || signInDto.getUserName() == null || signInDto.getUserName().isEmpty()) {
+                || signInDto.getUserName() == null || signInDto.getUserName().isEmpty()) {
             throw new UserException("QuizId and UserName are required");
         }
         QuizStatus quizStatus = getQuizStatus(signInDto.getQuizId());
@@ -54,6 +56,11 @@ public class QuizServiceImpl implements IQuizService {
             quiz = quizRepository.findByReferenceId(DEFAULT_QUIZ_ID);
         }
 
+        RealtimeEventDto<QuizParticipantDto> event = new RealtimeEventDto<>(
+                new QuizParticipantDto(signInDto.getQuizId(), getQuizParticipants(signInDto.getQuizId()))
+        );
+        kafkaService.sendNewParticipantJoined(event);
+
         return QuizDto.builder()
                 .quizId(signInDto.getQuizId())
                 .title(quiz.getTitle())
@@ -65,7 +72,6 @@ public class QuizServiceImpl implements IQuizService {
 
     @Override
     public QuizDto getQuiz(String quizId) {
-        kafkaService.sendMessage("quizId");
         Quiz quiz = quizRepository.findByReferenceId(quizId);
         if (quiz == null) {
             quiz = quizRepository.findByReferenceId(DEFAULT_QUIZ_ID);
@@ -82,7 +88,7 @@ public class QuizServiceImpl implements IQuizService {
     @Override
     public void startQuiz(String quizId) {
         if (!getQuizParticipants(quizId).isEmpty()) {
-            setQuizStatus(quizId, QuizStatus.WAITING);
+            setQuizStatus(quizId, QuizStatus.STARTED);
         }
         //TODO add more event to start
     }

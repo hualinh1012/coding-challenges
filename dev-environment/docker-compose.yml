@@ -28,8 +28,6 @@ services:
     container_name: quiz-zookeeper
     ports:
       - "2181:2181"
-    networks:
-      - kafka-net
 
   kafka:
     image: wurstmeister/kafka:latest
@@ -48,14 +46,8 @@ services:
       - kafka_data:/var/lib/kafka/data
     depends_on:
       - zookeeper
-    networks:
-      - kafka-net
 
 volumes:
   mysql_data:
   redis_data:
   kafka_data:
-
-networks:
-  kafka-net:
-    driver: bridge

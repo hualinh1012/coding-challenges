@@ -1,55 +1,91 @@
 import express from 'express';
 import { Kafka } from 'kafkajs';
 import { WebSocketServer } from 'ws';
+import {randomUUID} from "node:crypto";
+import dotenv from 'dotenv';
+import {SubscriptionEvent} from "./types/SubscriptionEvent";
+import {RealtimeEvent} from "./types/RealtimeEvent";
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const CLIENT_ID = process.env.APP_NAME;
+const KAFKA_BROKERS = (process.env.KAFKA_BROKERS! as string).split(',');
+const KAFKA_TOPIC = process.env.KAFKA_TOPIC!;
 
-// Initialize Kafka
 const kafka = new Kafka({
-    clientId: 'kafka-consumer-app',
-    brokers: ['localhost:9092'], // Update with your Kafka broker addresses
+    clientId: CLIENT_ID,
+    brokers: KAFKA_BROKERS,
 });
 
-const consumer = kafka.consumer({ groupId: 'test-group' });
+const consumer = kafka.consumer({ groupId: randomUUID() });
 
-// Create WebSocket server
 const wss = new WebSocketServer({ noServer: true });
+
+// Map that store by quizId-userName-WebSocket
+const connectionMap = new Map<string, Map<string, any>>;
 
 // Handle WebSocket connections
 wss.on('connection', (ws) => {
     console.log('New client connected');
+    let userName: string;
 
     // Handle messages received from the client
     ws.on('message', (message) => {
         console.log(`Received message from client: ${message}`);
-        // You can add logic here to respond to the client if needed
+        const payload = JSON.parse(message.toString()) as SubscriptionEvent;
+        userName = payload.userName;
+
+        if (payload.type === 'subscribe') {
+            let quizConnections = connectionMap.get(payload.quizId);
+            if (!quizConnections) {
+                quizConnections = new Map<string, any>;
+                connectionMap.set(payload.quizId, quizConnections);
+            }
+            quizConnections.set(payload.userName, ws);
+        } else if (payload.type === 'unsubscribe') {
+            let quizConnections = connectionMap.get(payload.quizId);
+            if (quizConnections) {
+                quizConnections.delete(payload.userName);
+            }
+        } else {
+            console.log("Does not support this event");
+        }
     });
 
     ws.on('close', () => {
         console.log('Client disconnected');
+        if (userName) {
+            for (const quizConnections of connectionMap.values()) {
+                quizConnections.delete(userName);
+            }
+        }
     });
 });
 
 const run = async () => {
-    // Connect the consumer
     await consumer.connect();
     console.log('Connected to Kafka');
 
-    // Subscribe to the topic
-    await consumer.subscribe({ topic: 'your-topic-name', fromBeginning: true });
+    await consumer.subscribe({ topic: KAFKA_TOPIC, fromBeginning: false });
 
     // Run the consumer
     await consumer.run({
         eachMessage: async ({ topic, partition, message }) => {
             console.log(`Received message: ${message.value?.toString()} from topic: ${topic}`);
-
-            // Broadcast the message to all connected WebSocket clients
-            // wss.clients.forEach((client) => {
-            //     if (client.readyState === client.OPEN) {
-            //         client.send(message.value?.toString());
-            //     }
-            // });
+            if (message.value) {
+                const realtimeEvent = JSON.parse(message.value?.toString()) as RealtimeEvent;
+                const quizSubscribers = connectionMap.get(realtimeEvent.payload?.quizId);
+                console.log("Quiz id", realtimeEvent.payload?.quizId)
+                console.log("subscriber size", quizSubscribers?.size)
+                if (quizSubscribers) {
+                    for (const connection of quizSubscribers.values()) {
+                        console.log(JSON.stringify(connection))
+                        connection.send(JSON.stringify(realtimeEvent));
+                    }
+                }
+            }
         },
     });
 };
@@ -71,5 +107,5 @@ server.on('upgrade', (request, socket, head) => {
 
 // Set up a simple Express server
 app.get('/', (req, res) => {
-    res.send('Kafka Consumer Server is running');
+    res.send('Quiz realtime service is running!');
 });

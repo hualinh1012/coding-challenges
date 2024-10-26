@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { signIn, SignInRequest } from '../../services/signInService';
 import './index.css';
 
-const SignInPage: React.FC = () => {
+const SignIn: React.FC = () => {
     const [userName, setUserName] = useState<string>('');
     const [quizId, setQuizId] = useState<string>('');
     const [error, setError] = useState<string>('');
@@ -72,4 +72,4 @@ const SignInPage: React.FC = () => {
     );
 };
 
-export default SignInPage;
+export default SignIn;

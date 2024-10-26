@@ -1,13 +1,22 @@
 import React, {useEffect, useState} from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getQuiz } from '../../services/getQuizService';
+import {useNavigate} from 'react-router-dom';
+import {getQuiz} from '../../services/getQuizService';
+import {subscribeRealtimeEvent} from '../../services/realtimeService';
+import {useWebsocket} from '../../provider/websocketProvider';
 import './index.css';
 
-const LobbyPage: React.FC = () => {
+const Lobby: React.FC = () => {
     const [title, setTitle] = useState<string>('');
     const [description, setDescription] = useState<string>('');
     const [participants, setParticipants] = useState<string[]>([]);
     const navigate = useNavigate();
+    const websocketService = useWebsocket();
+
+    const listenEvent = (message: any) => {
+        if (message.type === 'new-participant-joined') {
+            setParticipants(message.payload.participants);
+        }
+    }
 
     useEffect(() => {
         const fetchParticipants = async () => {
@@ -19,16 +28,23 @@ const LobbyPage: React.FC = () => {
                 }
 
                 const quiz = await getQuiz(quizId!);
-                setTitle(quiz.title); // Adjust based on your API response
-                setDescription(quiz.description); // Adjust based on your API response
-                setParticipants(quiz.participants); // Adjust based on your API response
+                setTitle(quiz.title);
+                setDescription(quiz.description);
+                setParticipants(quiz.participants);
+
+                subscribeRealtimeEvent(websocketService, quizId!, userName!, listenEvent);
+
             } catch (error) {
                 console.error('Error fetching participants:', error);
             }
         };
 
         fetchParticipants();
-    }, [navigate]);
+    }, [navigate, websocketService]);
+
+    const handleStartClick = () => {
+        navigate('/quiz');
+    };
 
     return (
         <div className="lobby-container">
@@ -36,7 +52,7 @@ const LobbyPage: React.FC = () => {
             <h2 className="lobby-description">{description}</h2>
             <h3 className="waiting-message">Waiting for other people to join...</h3>
             <h3 className="start-message">Or press here to start</h3>
-            <button className="start-button">START</button>
+            <button className="start-button" onClick={handleStartClick}>START</button>
             <h3 className="participants-count">Current Participants: {participants.length}</h3>
             <ul className="participants-list">
                 {participants.map((participant, index) => (
@@ -47,4 +63,4 @@ const LobbyPage: React.FC = () => {
     );
 };
 
-export default LobbyPage;
+export default Lobby;
