@@ -1,37 +1,46 @@
 import React, {useEffect, useState} from 'react';
-
-interface Participant {
-    username: string;
-}
+import { useNavigate } from 'react-router-dom';
+import { getQuiz } from '../../services/getQuizService';
+import './index.css';
 
 const LobbyPage: React.FC = () => {
-    const [participants, setParticipants] = useState<Participant[]>([]);
+    const [title, setTitle] = useState<string>('');
+    const [description, setDescription] = useState<string>('');
+    const [participants, setParticipants] = useState<string[]>([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchParticipants = async () => {
             try {
-                const response = await fetch('https://your-api-url.com/lobby');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch participants');
+                const quizId = sessionStorage.getItem('quizId')
+                const userName = sessionStorage.getItem('userName')
+                if (!quizId || !userName) {
+                    navigate('/');
                 }
 
-                const data = await response.json();
-                setParticipants(data.participants); // Adjust based on your API response
+                const quiz = await getQuiz(quizId!);
+                setTitle(quiz.title); // Adjust based on your API response
+                setDescription(quiz.description); // Adjust based on your API response
+                setParticipants(quiz.participants); // Adjust based on your API response
             } catch (error) {
                 console.error('Error fetching participants:', error);
             }
         };
 
         fetchParticipants();
-    }, []);
+    }, [navigate]);
 
     return (
-        <div>
-            <h2>Lobby</h2>
-            <h3>Current Participants: {participants.length}</h3>
-            <ul>
+        <div className="lobby-container">
+            <h2 className="lobby-title">{title}</h2>
+            <h2 className="lobby-description">{description}</h2>
+            <h3 className="waiting-message">Waiting for other people to join...</h3>
+            <h3 className="start-message">Or press here to start</h3>
+            <button className="start-button">START</button>
+            <h3 className="participants-count">Current Participants: {participants.length}</h3>
+            <ul className="participants-list">
                 {participants.map((participant, index) => (
-                    <li key={index}>{participant.username}</li>
+                    <li key={index} className="participant-item">{participant}</li>
                 ))}
             </ul>
         </div>

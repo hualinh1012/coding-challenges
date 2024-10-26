@@ -19,7 +19,6 @@ public class QuizServiceImpl implements IQuizService {
 
     private static final String QUIZ = "quiz-";
     private static final String QUIZ_PARTICIPANTS = "participants-";
-    private static final String USER = "user-";
     private static final String LEADER_BOARD = "leaderboard-";
 
     private final QuizRepository quizRepository;
@@ -59,6 +58,29 @@ public class QuizServiceImpl implements IQuizService {
                 .status(getQuizStatus(signInDto.getQuizId()))
                 .participants(getQuizParticipants(signInDto.getQuizId()))
                 .build();
+    }
+
+    @Override
+    public QuizDto getQuiz(String quizId) {
+        Quiz quiz = quizRepository.findByReferenceId(quizId);
+        if (quiz == null) {
+            quiz = quizRepository.findByReferenceId(DEFAULT_QUIZ_ID);
+        }
+        return QuizDto.builder()
+                .quizId(quizId)
+                .title(quiz.getTitle())
+                .description(quiz.getDescription())
+                .status(getQuizStatus(quizId))
+                .participants(getQuizParticipants(quizId))
+                .build();
+    }
+
+    @Override
+    public void startQuiz(String quizId) {
+        if (!getQuizParticipants(quizId).isEmpty()) {
+            setQuizStatus(quizId, QuizStatus.WAITING);
+        }
+        //TODO add more event to start
     }
 
     private QuizStatus getQuizStatus(String quizId) {

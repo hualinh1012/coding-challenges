@@ -3,18 +3,8 @@ export interface SignInRequest {
     quizId: string;
 }
 
-export interface SignInResponse {
-    quizId: string;
-    title: string;
-    description: string;
-    status: string;
-}
-
-const apiUrl = process.env.REACT_APP_API_URL + "/quiz";
-
-export const signIn = async (data: SignInRequest): Promise<any> => {
-    console.log(apiUrl)
-    const response = await fetch(apiUrl + "/sign-in", {
+export const signIn = async (data: SignInRequest): Promise<void> => {
+    const response = await fetch(process.env.REACT_APP_API_URL + "/quiz/sign-in", {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -25,6 +15,4 @@ export const signIn = async (data: SignInRequest): Promise<any> => {
     if (!response.ok) {
         throw new Error((await response.json()).message);
     }
-
-    return (await response.json()) as SignInResponse;
 };

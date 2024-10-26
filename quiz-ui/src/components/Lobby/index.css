@@ -1,0 +1,55 @@
+.lobby-container {
+    width: 80%;
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 2px solid #4CAF50;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    background-color: #f9f9f9;
+}
+
+.lobby-title {
+    font-size: 2em;
+    color: #333;
+}
+
+.lobby-description {
+    font-size: 1.5em;
+    color: #333;
+}
+
+.waiting-message,
+.start-message,
+.participants-count {
+    font-size: 1.2em;
+    color: #555;
+}
+
+.start-button {
+    padding: 10px 20px;
+    font-size: 1em;
+    color: white;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.start-button:hover {
+    background-color: #45a049;
+}
+
+.participants-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.participant-item {
+    background-color: #e7f3fe;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+}

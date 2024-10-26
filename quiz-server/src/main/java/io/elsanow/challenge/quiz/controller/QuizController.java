@@ -21,9 +21,15 @@ public class QuizController {
         return ResponseEntity.ok(quizService.signIn(signInDto));
     }
 
+    @GetMapping("/{quizId}")
+    public ResponseEntity<QuizDto> getQuiz(@PathVariable("quizId") String quizId) {
+        return ResponseEntity.ok(quizService.getQuiz(quizId));
+    }
+
     @PostMapping("/{quizId}/start")
-    public ResponseEntity<?> signIn(@PathVariable("quizId") String quizId) {
-        return ResponseEntity.ok("");
+    public ResponseEntity<Void> startQuiz(@PathVariable("quizId") String quizId) {
+        quizService.startQuiz(quizId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{quizId}/question/next")

@@ -13,8 +13,11 @@ const SignInPage: React.FC = () => {
     const onSignIn = async (data: SignInRequest) => {
         try {
             setLoading(true);
-            const result = await signIn({ userName, quizId });
-            console.log('Sign In Successful:', result);
+            await signIn({ userName, quizId });
+
+            sessionStorage.setItem('userName', userName);
+            sessionStorage.setItem('quizId', quizId);
+
             navigate('/lobby');
         } catch (error: any) {
             setError(error.message);
