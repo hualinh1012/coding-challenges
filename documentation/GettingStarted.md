@@ -21,6 +21,7 @@ node -v
 
 Use docker-compose to bring the environment up. It contains MySQL, Redis, Kafka
 ```bash
+cd dev-environment
 docker-compose up -d
 ```
 

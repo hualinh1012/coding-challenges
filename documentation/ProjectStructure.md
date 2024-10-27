@@ -116,4 +116,4 @@ This frontend project structure is designed for modular and scalable development
 - **Example**:
   ```
   src/types/answer.ts
-
+  ```

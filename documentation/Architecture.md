@@ -36,7 +36,7 @@ The architecture is designed to handle real-time interactions, user sessions, an
 ### 3. **Database**
 - **Technology**: MySQL
 - **Responsibilities**:
-    - Stores persistent data related to quizzes, questions, options, and user information.
+    - Stores persistent data related to questions, options.
     - Supports relational queries to retrieve and manipulate data efficiently.
 
 ### 4. **Caching Layer**
@@ -49,5 +49,5 @@ The architecture is designed to handle real-time interactions, user sessions, an
 - **Technology**: Kafka
 - **Responsibilities**:
     - Facilitates asynchronous communication between services.
-    - Handles real-time events and notifications related to quiz activities (e.g., quiz started, answers submitted).
+    - Handles real-time events and notifications related to quiz activities (e.g., quiz started, leader board changed).
     - Ensures reliable message delivery and scalability.
