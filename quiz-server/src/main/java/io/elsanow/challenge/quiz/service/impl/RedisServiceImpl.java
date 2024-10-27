@@ -11,6 +11,8 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class RedisServiceImpl implements IRedisService {
 
+    private static final int EXPIRED_TIME_IN_SECONDS = 300;
+
     private final RedisTemplate<String, String> redisTemplate;
 
     public RedisServiceImpl(RedisTemplate<String, String> redisTemplate) {
@@ -25,8 +27,20 @@ public class RedisServiceImpl implements IRedisService {
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
 
+    @Override
+    public Long getTTL(String key) {
+        return redisTemplate.getExpire(key, TimeUnit.SECONDS);
+    }
+
     public void setValue(String key, String value) {
         redisTemplate.opsForValue().set(key, value);
+        redisTemplate.expire(key, EXPIRED_TIME_IN_SECONDS, TimeUnit.SECONDS);
+    }
+
+    @Override
+    public void setValueWithExpire(String key, String value, int seconds) {
+        redisTemplate.opsForValue().set(key, value);
+        redisTemplate.expire(key, seconds, TimeUnit.SECONDS);
     }
 
     public String getValue(String key) {
@@ -39,6 +53,7 @@ public class RedisServiceImpl implements IRedisService {
 
     public void addToList(String key, String value) {
         redisTemplate.opsForList().rightPush(key, value);
+        redisTemplate.expire(key, EXPIRED_TIME_IN_SECONDS, TimeUnit.SECONDS);
     }
 
     public List<String> getList(String key) {
@@ -52,6 +67,7 @@ public class RedisServiceImpl implements IRedisService {
 
     public void addZSetScore(String leaderboardKey, String username, double score) {
         redisTemplate.opsForZSet().add(leaderboardKey, username, score);
+        redisTemplate.expire(leaderboardKey, EXPIRED_TIME_IN_SECONDS, TimeUnit.SECONDS);
     }
 
     public Set<String> getZSet(String leaderboardKey, int start, int end) {

@@ -12,7 +12,7 @@ import java.util.List;
 @Table(name = "questions")
 @Getter
 @Setter
-public class Question {
+public class QuestionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +20,7 @@ public class Question {
 
     @ManyToOne
     @JoinColumn(name = "quiz_id", nullable = false)
-    private Quiz quiz;
+    private QuizEntity quiz;
 
     @Column(name = "question_text", nullable = false)
     private String questionText;
@@ -33,6 +33,6 @@ public class Question {
     private Timestamp createdAt;
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Option> options;
+    private List<OptionEntity> option;
 
 }

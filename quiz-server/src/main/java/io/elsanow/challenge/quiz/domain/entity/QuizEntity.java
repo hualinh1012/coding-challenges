@@ -13,7 +13,7 @@ import java.util.List;
 @Table(name = "quizzes")
 @Getter
 @Setter
-public class Quiz {
+public class QuizEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,5 +32,5 @@ public class Quiz {
     private Date createdAt;
 
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Question> questions;
+    private List<QuestionEntity> questions;
 }

@@ -6,4 +6,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class LeaderBoardServiceImpl implements ILeaderBoardService {
+
+    @Override
+    public void addUser(String userName) {
+
+    }
+
+    @Override
+    public void addScore(String userName, int score) {
+
+    }
 }

@@ -21,7 +21,7 @@ CREATE TABLE questions
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
     quiz_id       BIGINT                                                 NOT NULL,
     question_text TEXT                                                   NOT NULL,
-    question_type ENUM ('multiple_choice', 'true_false', 'short_answer') NOT NULL,
+    question_type ENUM ('MULTIPLE_CHOICE', 'TRUE_FALSE', 'SHORT_ANSWER') NOT NULL,
     created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (quiz_id) REFERENCES quizzes (id) ON DELETE CASCADE
 );

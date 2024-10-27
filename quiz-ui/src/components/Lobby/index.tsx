@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import {getQuiz} from '../../services/getQuizService';
+import {getQuiz, startQuiz} from '../../services/quizService';
 import {subscribeRealtimeEvent} from '../../services/realtimeService';
 import {useWebsocket} from '../../provider/websocketProvider';
 import './index.css';
@@ -28,6 +28,10 @@ const Lobby: React.FC = () => {
                 }
 
                 const quiz = await getQuiz(quizId!);
+                if (!quiz.status) {
+                    navigate('/');
+                }
+
                 setTitle(quiz.title);
                 setDescription(quiz.description);
                 setParticipants(quiz.participants);
@@ -42,8 +46,14 @@ const Lobby: React.FC = () => {
         fetchParticipants();
     }, [navigate, websocketService]);
 
-    const handleStartClick = () => {
-        navigate('/quiz');
+    const handleStartClick = async () => {
+        const quizId = sessionStorage.getItem('quizId')
+        const isStarted = await startQuiz(quizId!);
+        if (isStarted) {
+            navigate('/quiz');
+        } else {
+            alert('Something is wrong, please try again');
+        }
     };
 
     return (

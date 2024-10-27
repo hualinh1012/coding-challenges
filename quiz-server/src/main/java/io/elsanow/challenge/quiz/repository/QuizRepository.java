@@ -1,11 +1,11 @@
 package io.elsanow.challenge.quiz.repository;
 
-import io.elsanow.challenge.quiz.domain.entity.Quiz;
+import io.elsanow.challenge.quiz.domain.entity.QuizEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface QuizRepository extends JpaRepository<Quiz, Long> {
+public interface QuizRepository extends JpaRepository<QuizEntity, Long> {
 
-    Quiz findByReferenceId(String referenceId);
+    QuizEntity findByReferenceId(String referenceId);
 }

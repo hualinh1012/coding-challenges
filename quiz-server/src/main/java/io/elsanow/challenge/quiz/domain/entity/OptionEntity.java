@@ -10,7 +10,7 @@ import java.util.Date;
 @Table(name = "options")
 @Getter
 @Setter
-public class Option {
+public class OptionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,7 +18,7 @@ public class Option {
 
     @ManyToOne
     @JoinColumn(name = "question_id")
-    private Question question;
+    private QuestionEntity question;
 
     @Column(name = "option_text")
     private String optionText;

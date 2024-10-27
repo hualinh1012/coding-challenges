@@ -9,7 +9,11 @@ public interface IRedisService {
 
     boolean keyExists(String key);
 
+    Long getTTL(String key);
+
     void setValue(String key, String value);
+
+    void setValueWithExpire(String key, String value, int seconds);
 
     String getValue(String key);
 
