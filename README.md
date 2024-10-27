@@ -8,5 +8,7 @@ Welcome to the repository! This document provides a structured overview of the p
 
 1. [The challenge requirements](documentation/TheChallenge.md)
 2. [Getting started](documentation/GettingStarted.md)
-3. [Architecture]()
-3. [Feature]()
+3. [Architecture](documentation/Architecture.md)
+4. [Project structure](documentation/ProjectStructure.md)
+5. [Data flow](documentation/FlowOfData.md)
+6. [Technology justification](documentation/TechnologyJustification.md)

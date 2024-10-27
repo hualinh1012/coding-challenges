@@ -1,0 +1,38 @@
+@startuml
+actor User
+actor AnotherUser
+participant "quiz-ui" as Webapp
+participant "quiz-server" as Server
+participant "quiz-realtime" as Realtime
+participant "Redis" as Redis
+participant "Kafka" as Kafka
+participant "Database" as MySQL
+
+User -> Webapp : Retrieve question
+Webapp -> Server : Request retrieve question
+Server -> Redis : Validate request
+Server -> Redis : Get current question and duration
+alt Question expired
+    Redis --> Server : question with duration <= 0
+    Server -> Redis : Get next question
+    Redis --> Server : next question with duration > 0
+else Duration left
+    Redis --> Server : question with duration > 0
+end
+Server --> Webapp
+
+User -> Webapp : Answer question
+Webapp -> Server : Request answer question
+Server -> Redis : Get session and options
+Server -> Server : Compare answer
+alt False
+    Server --> Webapp : Answer is wrong
+else True
+    Server -> Server : Update score
+    Server -> Kafka : Publish leaderboard changed event
+    Server --> Webapp : Answer is correct
+    Kafka --> Realtime : Consume leaderboard changed event
+    Realtime -> Webapp: Send leaderboard changed real time event to user
+    Webapp -> AnotherUser: Send leaderboard changed real time event to user
+end
+@enduml

@@ -1,0 +1,34 @@
+@startuml
+actor User
+actor AnotherUser
+participant "quiz-ui" as Webapp
+participant "quiz-server" as Server
+participant "quiz-realtime" as Realtime
+participant "Redis" as Redis
+participant "Kafka" as Kafka
+participant "Database" as MySQL
+
+User -> Webapp : Sign-in
+Webapp -> Server : Send sign-in request
+Server -> Redis : Validate and store user data and quiz data
+Redis --> Server : Retrieve cached data
+Server -> MySQL : Get quiz and questions
+Server -> Redis : Add participant to leader board
+Server -> Kafka : Publish event for new participant
+Webapp -> Server : Retrieve quiz and participants
+Webapp -> Realtime : Establish WebSocket connection
+Kafka --> Realtime : Consume new participant event
+Realtime -> Webapp: Send new participant real time event to user
+Webapp -> AnotherUser: Send new participant real time event to user
+
+User -> Webapp : Start quiz
+Webapp -> Server : Send start quiz request
+Server -> MySQL : Retrieve quiz data
+Server -> Redis : Persist cache data
+Server -> Kafka : Publish event for starting quiz
+Kafka --> Realtime : Consume new participant event
+Realtime -> Webapp: Send start quiz real time event to user
+Webapp -> AnotherUser: Send start quiz real time event to user
+
+
+@enduml
