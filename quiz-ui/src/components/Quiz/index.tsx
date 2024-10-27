@@ -7,6 +7,10 @@ import './index.css';
 import {Question} from "../../types/question";
 import {AnswerResult} from "../../types/answer";
 import QuizFinished from "../QuizFinished";
+import {useWebsocket} from "../../provider/websocketProvider";
+import {getLeaderBoard} from "../../services/leaderboardService";
+import {UserScores} from "../../types/userScores";
+import {subscribeRealtimeEvent} from "../../services/realtimeService";
 
 const Quiz: React.FC = () => {
     const navigate = useNavigate();
@@ -14,13 +18,8 @@ const Quiz: React.FC = () => {
     const [result, setResult] = useState<AnswerResult | null>(null);
     const [message, setMessage] = useState<string | null>(null);
     const [finish, setFinish] = useState<boolean>(false);
-
-    const leaderboard = [
-        {
-            name: "linh",
-            score: 1
-        }
-    ];
+    const [board, setBoard] = useState<UserScores>({leaderboard: []})
+    const websocketService = useWebsocket();
 
     const handleAnswer = async (optionId: number) => {
         const quizId = sessionStorage.getItem('quizId');
@@ -45,7 +44,8 @@ const Quiz: React.FC = () => {
         }
         setResult(null);
         setMessage(null);
-        await fetchNextQuestion(); // Ensure to await fetching the next question
+        await fetchNextQuestion();
+        await fetchLeaderBoard();
     };
 
     const fetchNextQuestion = useCallback(async () => {
@@ -79,32 +79,56 @@ const Quiz: React.FC = () => {
         }
     }, [navigate]);
 
+    const fetchLeaderBoard = useCallback(async () => {
+        const quizId = sessionStorage.getItem('quizId');
+        if (quizId) {
+            const board = await getLeaderBoard(quizId);
+            setBoard(board);
+        }
+    }, []);
+
+    const listenEvent = (message: any) => {
+        if (message.type === 'leader-board-changed') {
+            setBoard(message.payload.leaderBoard);
+        }
+    }
+
+    const subscribeForLeaderBoardChange = useCallback(async () => {
+        const quizId = sessionStorage.getItem('quizId');
+        const userName = sessionStorage.getItem('userName');
+        subscribeRealtimeEvent(websocketService, quizId!, userName!, listenEvent);
+    }, [websocketService]);
+
     useEffect(() => {
         fetchNextQuestion();
-    }, [fetchNextQuestion]);
+        fetchLeaderBoard();
+        subscribeForLeaderBoardChange();
+    }, [fetchNextQuestion, fetchLeaderBoard, subscribeForLeaderBoardChange]);
 
-    if (question) {
+    if (question || finish) {
         return (
             <div className="quiz-container">
                 <div className="quiz-section">
-                    {finish ? <QuizFinished/> : <QuizQuestion
-                        question={question!}
-                        result={result!}
-                        message={message}
-                        onAnswer={handleAnswer}
-                        onTimeUp={handleTimeUp}
-                    />}
+                    {finish ?
+                        <QuizFinished winner={board.leaderboard[0].userName}/>
+                        :
+                        <QuizQuestion
+                            question={question!}
+                            result={result!}
+                            message={message}
+                            onAnswer={handleAnswer}
+                            onTimeUp={handleTimeUp}
+                        />}
 
                 </div>
                 <div className="leaderboard-section">
-                    <LeaderBoard leaderboard={leaderboard}/>
+                    <LeaderBoard leaderboard={board.leaderboard}/>
                 </div>
             </div>
         );
     } else {
         return (
             <div className="quiz-container">
-                {/* Optional loading state or message could be placed here */}
             </div>
         );
     }

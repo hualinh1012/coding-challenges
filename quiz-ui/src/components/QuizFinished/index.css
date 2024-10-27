@@ -9,6 +9,11 @@
     margin-bottom: 10px;
 }
 
+.quiz-finished-congratulations {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
 .quiz-finished-instructions {
     font-size: 18px;
     margin-bottom: 20px;

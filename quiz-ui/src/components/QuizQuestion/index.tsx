@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from 'react';
-import {Option, Question} from "../../types/question";
-import {AnswerResult} from "../../types/answer";
+import React, { useEffect, useState } from 'react';
+import { Option, Question } from "../../types/question";
+import { AnswerResult } from "../../types/answer";
 import "./index.css";
 
 interface QuizQuestionProps {
@@ -11,15 +11,18 @@ interface QuizQuestionProps {
     onTimeUp: () => void;
 }
 
-const QuizQuestion: React.FC<QuizQuestionProps> = ({question, result, message, onAnswer, onTimeUp}) => {
-    const [timeLeft, setTimeLeft] = useState(question.duration);
+const QuizQuestion: React.FC<QuizQuestionProps> = ({ question, result, message, onAnswer, onTimeUp }) => {
+    const [timeLeft, setTimeLeft] = useState<number>(question.duration);
     const [selectedOptionId, setSelectedOptionId] = useState<number | null>(null);
+
+    useEffect(() => {
+        setTimeLeft(question.duration);
+    }, [question]);
 
     useEffect(() => {
         if (timeLeft <= 0) {
             onTimeUp();
             setSelectedOptionId(null);
-            setTimeLeft(question.duration);
             return;
         }
 
@@ -28,7 +31,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({question, result, message, o
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [timeLeft, onTimeUp, question.duration]);
+    }, [timeLeft, onTimeUp]);
 
     const handleOptionClick = (optionId: number) => {
         setSelectedOptionId(optionId);

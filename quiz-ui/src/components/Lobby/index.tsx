@@ -16,6 +16,9 @@ const Lobby: React.FC = () => {
         if (message.type === 'new-participant-joined') {
             setParticipants(message.payload.participants);
         }
+        if (message.type === 'quiz-started') {
+            navigate('/quiz');
+        }
     }
 
     useEffect(() => {
@@ -30,6 +33,8 @@ const Lobby: React.FC = () => {
                 const quiz = await getQuiz(quizId!);
                 if (!quiz.status) {
                     navigate('/');
+                } else if (quiz.status === 'STARTED') {
+                    navigate('/quiz');
                 }
 
                 setTitle(quiz.title);

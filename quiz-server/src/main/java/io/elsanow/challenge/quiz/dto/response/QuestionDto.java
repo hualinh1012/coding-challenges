@@ -15,6 +15,6 @@ public class QuestionDto {
     private QuestionType questionType;
     private List<OptionDto> options;
     private Integer duration;
-    private AnswerResultDto myAnswer;
+    private AnswerResultDto userAnswer;
     private Boolean isFinished = false;
 }

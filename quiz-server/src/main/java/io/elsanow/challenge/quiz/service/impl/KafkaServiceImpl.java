@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.elsanow.challenge.quiz.dto.event.RealtimeEventDto;
 import io.elsanow.challenge.quiz.dto.event.payload.BaseEventDto;
-import io.elsanow.challenge.quiz.dto.event.payload.QuizParticipantDto;
+import io.elsanow.challenge.quiz.dto.event.payload.ParticipantJoinedDto;
 import io.elsanow.challenge.quiz.service.IKafkaService;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -29,7 +29,7 @@ public class KafkaServiceImpl implements IKafkaService {
         producer.send(new ProducerRecord<>(topic, message));
     }
 
-    public void sendNewParticipantJoined(RealtimeEventDto<? extends BaseEventDto> dto) {
+    public void sendRealtimeEvent(RealtimeEventDto<? extends BaseEventDto> dto) {
         producer.send(new ProducerRecord<>(topic, toJson(dto)));
     }
 

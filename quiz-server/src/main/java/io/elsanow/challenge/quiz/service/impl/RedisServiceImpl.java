@@ -1,6 +1,7 @@
 package io.elsanow.challenge.quiz.service.impl;
 
 import io.elsanow.challenge.quiz.service.IRedisService;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -70,6 +71,11 @@ public class RedisServiceImpl implements IRedisService {
         redisTemplate.expire(leaderboardKey, EXPIRED_TIME_IN_SECONDS, TimeUnit.SECONDS);
     }
 
+    public void increaseZSetScore(String leaderboardKey, String username, double score) {
+        redisTemplate.opsForZSet().incrementScore(leaderboardKey, username, score);
+        redisTemplate.expire(leaderboardKey, EXPIRED_TIME_IN_SECONDS, TimeUnit.SECONDS);
+    }
+
     public Set<String> getZSet(String leaderboardKey, int start, int end) {
         return redisTemplate.opsForZSet().reverseRange(leaderboardKey, start, end);
     }
@@ -78,7 +84,13 @@ public class RedisServiceImpl implements IRedisService {
         return redisTemplate.opsForZSet().score(leaderboardKey, username);
     }
 
-    public Long getRank(String leaderboardKey, String username) {
-        return redisTemplate.opsForZSet().reverseRank(leaderboardKey, username);
+    public void setHashValue(String hashName, String key, Integer value) {
+        HashOperations<String, String, Integer> hashOperations = redisTemplate.opsForHash();
+        hashOperations.put(hashName, key, value);
+    }
+
+    public Integer getHashValue(String hashName, String key) {
+        HashOperations<String, String, Integer> hashOperations = redisTemplate.opsForHash();
+        return hashOperations.get(hashName, key);
     }
 }

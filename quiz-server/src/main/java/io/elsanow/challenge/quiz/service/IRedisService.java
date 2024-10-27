@@ -23,11 +23,15 @@ public interface IRedisService {
 
     boolean isElementInList(String key, String value);
 
-    void addZSetScore(String leaderboardKey, String username, double score);
+    void addZSetScore(String key, String member, double score);
 
-    Set<String> getZSet(String leaderboardKey, int start, int end);
+    void increaseZSetScore(String key, String member, double score);
 
-    Double getScore(String leaderboardKey, String username);
+    Set<String> getZSet(String key, int start, int end);
 
-    Long getRank(String leaderboardKey, String username);
+    Double getScore(String key, String member);
+
+    void setHashValue(String hashName, String key, Integer value);
+
+    Integer getHashValue(String hashName, String key);
 }

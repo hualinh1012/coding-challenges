@@ -1,12 +1,16 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import './index.css'; // Import your CSS styles
+import './index.css';
 
-const QuizFinished: React.FC = () => {
+interface QuizFinishedProps {
+    winner: string;
+}
+
+const QuizFinished: React.FC<QuizFinishedProps> = ({ winner }) => {
     const navigate = useNavigate();
 
     const handleRestartClick = () => {
-        navigate('/lobby');
+        navigate('/');
     };
 
     const handleSignInClick = () => {
@@ -16,6 +20,7 @@ const QuizFinished: React.FC = () => {
     return (
         <div className="quiz-finished-container">
             <h2 className="quiz-finished-message">Quiz Finished!</h2>
+            <p className="quiz-finished-congratulations"><b>{winner}</b> smashed the quiz!!!!!</p>
             <p className="quiz-finished-instructions">Thank you for participating!</p>
             <div className="quiz-finished-buttons">
                 <button onClick={handleRestartClick} className="quiz-finished-button">Restart quiz</button>

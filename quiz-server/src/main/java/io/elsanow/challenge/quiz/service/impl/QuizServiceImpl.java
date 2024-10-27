@@ -10,7 +10,8 @@ import io.elsanow.challenge.quiz.domain.bo.Question;
 import io.elsanow.challenge.quiz.domain.entity.QuizEntity;
 import io.elsanow.challenge.quiz.domain.enumeration.QuizStatus;
 import io.elsanow.challenge.quiz.dto.event.RealtimeEventDto;
-import io.elsanow.challenge.quiz.dto.event.payload.QuizParticipantDto;
+import io.elsanow.challenge.quiz.dto.event.payload.ParticipantJoinedDto;
+import io.elsanow.challenge.quiz.dto.event.payload.QuizStartedDto;
 import io.elsanow.challenge.quiz.dto.request.AnswerDto;
 import io.elsanow.challenge.quiz.dto.request.SignInDto;
 import io.elsanow.challenge.quiz.dto.response.AnswerResultDto;
@@ -36,7 +37,6 @@ public class QuizServiceImpl implements IQuizService {
     private static final String QUIZ_QUESTION = "question-";
     private static final String CURRENT_QUESTION = "current-question-";
     private static final String CURRENT_QUESTION_COUNTER = "current-question-counter";
-    private static final String LEADER_BOARD = "leaderboard-";
 
     private final QuizRepository quizRepository;
     private final IRedisService redisService;
@@ -78,11 +78,11 @@ public class QuizServiceImpl implements IQuizService {
             quizEntity = quizRepository.findByReferenceId(DEFAULT_QUIZ_ID);
         }
 
-        leaderBoardService.addUser(signInDto.getUserName());
-        RealtimeEventDto<QuizParticipantDto> event = new RealtimeEventDto<>(
-                new QuizParticipantDto(signInDto.getQuizId(), getQuizParticipants(signInDto.getQuizId()))
+        leaderBoardService.addUser(signInDto.getQuizId(), signInDto.getUserName());
+        RealtimeEventDto<ParticipantJoinedDto> event = new RealtimeEventDto<>(
+                new ParticipantJoinedDto(signInDto.getQuizId(), getQuizParticipants(signInDto.getQuizId()))
         );
-        kafkaService.sendNewParticipantJoined(event);
+        kafkaService.sendRealtimeEvent(event);
 
         return QuizDto.builder()
                 .quizId(signInDto.getQuizId())
@@ -119,6 +119,8 @@ public class QuizServiceImpl implements IQuizService {
             setQuizStatus(quizId, QuizStatus.STARTED);
             setCurrentQuizQuestionId(quizId, 1);
             setQuizQuestions(quizId, QuizQuestionAdapter.toBOMap(quizEntity.getQuestions()));
+
+            kafkaService.sendRealtimeEvent(new RealtimeEventDto<>(new QuizStartedDto(quizId)));
         }
     }
 
@@ -160,10 +162,6 @@ public class QuizServiceImpl implements IQuizService {
                 || questionId == null || optionId == null) {
             throw new UserException("Invalid parameters");
         }
-        int currentQuestionId = getCurrentQuizQuestionId(quizId);
-        if (currentQuestionId != questionId.intValue()) {
-            throw new UserException("Invalid questionId");
-        }
 
         Map<Long, Question> questions = getQuizQuestions(quizId);
         if (questions.isEmpty() || !questions.containsKey(questionId)) {
@@ -173,13 +171,16 @@ public class QuizServiceImpl implements IQuizService {
         List<Option> options = questions.get(questionId).getOptions();
         Option userOption = options.stream().filter(o -> o.getOptionId().equals(optionId)).findFirst().orElse(null);
         Option correctOption = options.stream().filter(Option::getIsCorrect).findFirst().orElseThrow(() -> new UserException("Question is corrupted!"));
-        boolean isCorrect = userOption == null || correctOption.getOptionId().equals(optionId);
+        boolean isCorrect = userOption != null && correctOption.getOptionId().equals(optionId);
 
-        if (isCorrect) {
-            leaderBoardService.addScore(userName, 1);
+        int currentQuestionId = getCurrentQuizQuestionId(quizId);
+        if (currentQuestionId == questionId.intValue()) {
+            if (isCorrect) {
+                leaderBoardService.addScore(quizId, userName, 1);
+            }
+            return new AnswerResultDto(questionId, correctOption.getOptionId(), isCorrect);
         }
-
-        return new AnswerResultDto(questionId, correctOption.getOptionId(), isCorrect);
+        return new AnswerResultDto(questionId, correctOption.getOptionId(), false);
     }
 
     private QuizStatus getQuizStatus(String quizId) {

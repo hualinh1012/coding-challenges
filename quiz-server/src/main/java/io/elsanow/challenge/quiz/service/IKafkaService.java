@@ -7,5 +7,6 @@ public interface IKafkaService {
 
     void sendMessage(String message);
 
-    void sendNewParticipantJoined(RealtimeEventDto<? extends BaseEventDto> dto);
+    void sendRealtimeEvent(RealtimeEventDto<? extends BaseEventDto> dto);
+
 }
