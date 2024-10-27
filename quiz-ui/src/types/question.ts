@@ -5,6 +5,7 @@ export interface Question {
     questionText: string;
     options: Option[];
     duration: number;
+    isFinished: boolean;
 }
 
 export interface Option {

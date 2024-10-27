@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class NextOptionDto {
+public class OptionDto {
     private Long optionId;
     private String optionText;
     private Boolean isCorrect;

@@ -2,7 +2,7 @@ package io.elsanow.challenge.quiz.adapter;
 
 import io.elsanow.challenge.quiz.domain.bo.Question;
 import io.elsanow.challenge.quiz.domain.entity.QuestionEntity;
-import io.elsanow.challenge.quiz.dto.response.NextQuestionDto;
+import io.elsanow.challenge.quiz.dto.response.QuestionDto;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,11 +33,11 @@ public class QuizQuestionAdapter {
         return questions;
     }
 
-    public static NextQuestionDto toDTO(Question question, Integer duration) {
+    public static QuestionDto toDTO(Question question, Integer duration) {
         if (question == null) {
             return null;
         }
-        return NextQuestionDto.builder()
+        return QuestionDto.builder()
                 .quizId(question.getQuizId())
                 .questionId(question.getQuestionId())
                 .questionText(question.getQuestionText())

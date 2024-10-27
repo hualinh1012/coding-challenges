@@ -28,7 +28,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({question, result, message, o
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [timeLeft, onTimeUp]);
+    }, [timeLeft, onTimeUp, question.duration]);
 
     const handleOptionClick = (optionId: number) => {
         setSelectedOptionId(optionId);

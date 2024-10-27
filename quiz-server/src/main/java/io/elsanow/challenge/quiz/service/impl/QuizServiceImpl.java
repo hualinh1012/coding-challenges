@@ -7,7 +7,6 @@ import io.elsanow.challenge.exception.UserException;
 import io.elsanow.challenge.quiz.adapter.QuizQuestionAdapter;
 import io.elsanow.challenge.quiz.domain.bo.Option;
 import io.elsanow.challenge.quiz.domain.bo.Question;
-import io.elsanow.challenge.quiz.domain.entity.QuestionEntity;
 import io.elsanow.challenge.quiz.domain.entity.QuizEntity;
 import io.elsanow.challenge.quiz.domain.enumeration.QuizStatus;
 import io.elsanow.challenge.quiz.dto.event.RealtimeEventDto;
@@ -15,7 +14,7 @@ import io.elsanow.challenge.quiz.dto.event.payload.QuizParticipantDto;
 import io.elsanow.challenge.quiz.dto.request.AnswerDto;
 import io.elsanow.challenge.quiz.dto.request.SignInDto;
 import io.elsanow.challenge.quiz.dto.response.AnswerResultDto;
-import io.elsanow.challenge.quiz.dto.response.NextQuestionDto;
+import io.elsanow.challenge.quiz.dto.response.QuestionDto;
 import io.elsanow.challenge.quiz.dto.response.QuizDto;
 import io.elsanow.challenge.quiz.repository.QuizRepository;
 import io.elsanow.challenge.quiz.service.ILeaderBoardService;
@@ -26,7 +25,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Service
 public class QuizServiceImpl implements IQuizService {
@@ -125,9 +123,13 @@ public class QuizServiceImpl implements IQuizService {
     }
 
     @Override
-    public NextQuestionDto nextQuestion(String quizId) {
-        if (!QuizStatus.STARTED.equals(getQuizStatus(quizId))) {
+    public QuestionDto getQuestion(String quizId) {
+        QuizStatus status = getQuizStatus(quizId);
+        if (QuizStatus.WAITING.equals(status)) {
             throw new UserException("Quiz has not started yet!");
+        }
+        if (QuizStatus.FINISHED.equals(status)) {
+            return QuestionDto.builder().isFinished(true).build();
         }
         int currentQuestionId = getCurrentQuizQuestionId(quizId);
         Map<Long, Question> questions = getQuizQuestions(quizId);
@@ -142,7 +144,7 @@ public class QuizServiceImpl implements IQuizService {
         duration = getCurrentQuizQuestionCounter(quizId);
         if (question == null) {
             setQuizStatus(quizId, QuizStatus.FINISHED);
-            return null;
+            return QuestionDto.builder().isFinished(true).build();
         }
 
         return QuizQuestionAdapter.toDTO(question, duration);

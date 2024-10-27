@@ -28,8 +28,8 @@ export const startQuiz = async (quizId: string): Promise<boolean> => {
     return response.ok;
 };
 
-export const nextQuestion = async (quizId: string): Promise<Question> => {
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/quiz/${quizId}/question/next`, {
+export const getQuestion = async (quizId: string): Promise<Question> => {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/quiz/${quizId}/question`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

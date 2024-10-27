@@ -8,11 +8,13 @@ import java.util.List;
 
 @Getter
 @Builder
-public class NextQuestionDto {
+public class QuestionDto {
     private Long quizId;
     private Long questionId;
     private String questionText;
     private QuestionType questionType;
-    private List<NextOptionDto> options;
+    private List<OptionDto> options;
     private Integer duration;
+    private AnswerResultDto myAnswer;
+    private Boolean isFinished = false;
 }

@@ -1,10 +1,8 @@
 package io.elsanow.challenge.quiz.adapter;
 
 import io.elsanow.challenge.quiz.domain.bo.Option;
-import io.elsanow.challenge.quiz.domain.bo.Question;
 import io.elsanow.challenge.quiz.domain.entity.OptionEntity;
-import io.elsanow.challenge.quiz.domain.entity.QuestionEntity;
-import io.elsanow.challenge.quiz.dto.response.NextOptionDto;
+import io.elsanow.challenge.quiz.dto.response.OptionDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,19 +24,19 @@ public class QuizOptionAdapter {
         return options;
     }
 
-    public static NextOptionDto toDTO(Option option) {
+    public static OptionDto toDTO(Option option) {
         if (option == null) {
             return null;
         }
-        NextOptionDto dto = new NextOptionDto();
+        OptionDto dto = new OptionDto();
         dto.setOptionId(option.getOptionId());
         dto.setOptionText(option.getOptionText());
         dto.setIsCorrect(option.getIsCorrect());
         return dto;
     }
 
-    public static List<NextOptionDto> toDTOs(List<Option> options) {
-        List<NextOptionDto> dtos = new ArrayList<>();
+    public static List<OptionDto> toDTOs(List<Option> options) {
+        List<OptionDto> dtos = new ArrayList<>();
         if (options != null && !options.isEmpty()) {
             options.forEach(option -> dtos.add(toDTO(option)));
         }

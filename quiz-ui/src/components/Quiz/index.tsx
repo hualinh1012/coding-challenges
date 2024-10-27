@@ -1,24 +1,26 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import QuizQuestion from '../QuizQuestion';
 import LeaderBoard from '../LeaderBoard';
-import {getQuiz, nextQuestion, answerQuestion} from "../../services/quizService";
+import {getQuiz, getQuestion, answerQuestion} from "../../services/quizService";
 import {useNavigate} from "react-router-dom";
 import './index.css';
 import {Question} from "../../types/question";
 import {AnswerResult} from "../../types/answer";
+import QuizFinished from "../QuizFinished";
 
 const Quiz: React.FC = () => {
     const navigate = useNavigate();
     const [question, setQuestion] = useState<Question>();
     const [result, setResult] = useState<AnswerResult | null>(null);
     const [message, setMessage] = useState<string | null>(null);
+    const [finish, setFinish] = useState<boolean>(false);
 
     const leaderboard = [
         {
             name: "linh",
             score: 1
         }
-    ]
+    ];
 
     const handleAnswer = async (optionId: number) => {
         const quizId = sessionStorage.getItem('quizId');
@@ -27,60 +29,72 @@ const Quiz: React.FC = () => {
             userName: userName!,
             questionId: question!.questionId,
             optionId: optionId
-        })
+        });
 
         setResult(result);
         if (result.isCorrect) {
-            setMessage("Congratulation!")
+            setMessage("Congratulations!");
         } else {
-            setMessage("Oops! Try again next time.")
+            setMessage("Oops! Try again next time.");
         }
     };
 
     const handleTimeUp = async () => {
-        console.log("trigger time up!")
+        if (!result) {
+            await handleAnswer(-1);
+        }
         setResult(null);
         setMessage(null);
-        fetchNextQuestion();
+        await fetchNextQuestion(); // Ensure to await fetching the next question
     };
 
-    const fetchNextQuestion = async () => {
+    const fetchNextQuestion = useCallback(async () => {
         try {
             const quizId = sessionStorage.getItem('quizId');
             const userName = sessionStorage.getItem('userName');
             if (!quizId || !userName) {
                 navigate('/');
+                return;
             }
             const quiz = await getQuiz(quizId!);
             if (!quiz.status) {
                 navigate('/');
-            } else if (quiz.status && quiz.status === 'WAITING') {
-                navigate('/lobby')
+                return;
+            } else if (quiz.status === 'WAITING') {
+                navigate('/lobby');
+                return;
+            } else if (quiz.status === 'FINISHED') {
+                setFinish(true);
             }
 
-            const question = await nextQuestion(quizId!);
-            setQuestion(question);
+            const questionData = await getQuestion(quizId!);
+            if (questionData && questionData.isFinished) {
+                setFinish(true);
+            } else {
+                setQuestion(questionData);
+            }
         } catch (e) {
             console.log(e);
             navigate('/');
         }
-    }
+    }, [navigate]);
 
     useEffect(() => {
         fetchNextQuestion();
-    }, [navigate]);
+    }, [fetchNextQuestion]);
 
     if (question) {
         return (
             <div className="quiz-container">
                 <div className="quiz-section">
-                    <QuizQuestion
+                    {finish ? <QuizFinished/> : <QuizQuestion
                         question={question!}
                         result={result!}
                         message={message}
                         onAnswer={handleAnswer}
                         onTimeUp={handleTimeUp}
-                    />
+                    />}
+
                 </div>
                 <div className="leaderboard-section">
                     <LeaderBoard leaderboard={leaderboard}/>
@@ -90,6 +104,7 @@ const Quiz: React.FC = () => {
     } else {
         return (
             <div className="quiz-container">
+                {/* Optional loading state or message could be placed here */}
             </div>
         );
     }

@@ -3,7 +3,7 @@ package io.elsanow.challenge.quiz.controller;
 import io.elsanow.challenge.quiz.dto.request.AnswerDto;
 import io.elsanow.challenge.quiz.dto.request.SignInDto;
 import io.elsanow.challenge.quiz.dto.response.AnswerResultDto;
-import io.elsanow.challenge.quiz.dto.response.NextQuestionDto;
+import io.elsanow.challenge.quiz.dto.response.QuestionDto;
 import io.elsanow.challenge.quiz.dto.response.QuizDto;
 import io.elsanow.challenge.quiz.service.IQuizService;
 import org.springframework.http.ResponseEntity;
@@ -35,9 +35,9 @@ public class QuizController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{quizId}/question/next")
-    public ResponseEntity<NextQuestionDto> nextQuestion(@PathVariable("quizId") String quizId) {
-        return ResponseEntity.ok(quizService.nextQuestion(quizId));
+    @GetMapping("/{quizId}/question")
+    public ResponseEntity<QuestionDto> nextQuestion(@PathVariable("quizId") String quizId) {
+        return ResponseEntity.ok(quizService.getQuestion(quizId));
     }
 
     @PostMapping("/{quizId}/question/answer")
