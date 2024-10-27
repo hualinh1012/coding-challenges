@@ -216,7 +216,7 @@ public class QuizServiceImpl implements IQuizService {
         }
     }
 
-    private Map<Long, Question> getQuizQuestions(String quizId) {
+    public Map<Long, Question> getQuizQuestions(String quizId) {
         try {
             String questionAsString = redisService.getValue(QUIZ_QUESTION + quizId);
             return objectMapper.readValue(questionAsString, new TypeReference<Map<Long, Question>>() {
@@ -231,7 +231,7 @@ public class QuizServiceImpl implements IQuizService {
         redisService.setValueWithExpire(CURRENT_QUESTION_COUNTER + quizId, String.valueOf(questionId), 10);
     }
 
-    private int getCurrentQuizQuestionId(String quizId) {
+    public int getCurrentQuizQuestionId(String quizId) {
         String id = redisService.getValue(CURRENT_QUESTION + quizId);
         if (id == null) {
             return 0;

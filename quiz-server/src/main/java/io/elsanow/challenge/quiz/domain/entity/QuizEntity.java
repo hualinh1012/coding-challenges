@@ -4,6 +4,7 @@ import jakarta.persistence.Table;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
@@ -13,6 +14,7 @@ import java.util.List;
 @Table(name = "quizzes")
 @Getter
 @Setter
+@NoArgsConstructor
 public class QuizEntity {
     
     @Id
@@ -33,4 +35,11 @@ public class QuizEntity {
 
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionEntity> questions;
+
+    public QuizEntity(String referenceId, String title, String description, List<QuestionEntity> questions) {
+        this.referenceId = referenceId;
+        this.title = title;
+        this.description = description;
+        this.questions = questions;
+    }
 }
